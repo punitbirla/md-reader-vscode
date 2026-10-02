@@ -2,7 +2,7 @@
   "name": "md-reader-preview",
   "displayName": "Markdown Preview Reader",
   "description": "A clean, readable Markdown preview — tables, callouts, Mermaid diagrams, math, syntax highlighting and tickable checkboxes, right inside VS Code.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "punitbirla",
   "license": "MIT",
   "repository": {

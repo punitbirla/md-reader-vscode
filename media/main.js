@@ -136,9 +136,69 @@
     catch (e) { html = `<div class="doc-error">Failed to render: ${esc(e.message)}</div>`; }
     docEl.innerHTML = fmHtml + html;
     enhance();
+    buildOutline();
     renderMath();
     renderMermaid();
   }
+
+  /* ---------------- in-page outline (left pane) ---------------- */
+  const outlineEl = document.getElementById('outline');
+  let outlineLinks = [], outlineHeads = [];
+
+  function buildOutline() {
+    outlineHeads = [...docEl.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+    outlineEl.textContent = '';
+    outlineLinks = [];
+    const title = document.createElement('div');
+    title.className = 'outline-title';
+    title.textContent = 'On this page';
+    outlineEl.append(title);
+    if (!outlineHeads.length) {
+      const none = document.createElement('div');
+      none.className = 'outline-empty';
+      none.textContent = 'No headings in this document';
+      outlineEl.append(none);
+      return;
+    }
+    const min = Math.min(...outlineHeads.map((h) => +h.tagName[1]));
+    outlineHeads.forEach((h) => {
+      const a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/^#/, '').trim();
+      a.title = a.textContent;
+      a.style.paddingLeft = 10 + (+h.tagName[1] - min) * 14 + 'px';
+      a.addEventListener('click', (e) => { e.preventDefault(); h.scrollIntoView({ block: 'start' }); });
+      outlineEl.append(a);
+      outlineLinks.push(a);
+    });
+    updateOutlineSpy();
+  }
+
+  function updateOutlineSpy() {
+    if (!outlineLinks.length) return;
+    let idx = 0;
+    outlineHeads.forEach((h, i) => { if (h.getBoundingClientRect().top <= 90) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) idx = outlineHeads.length - 1;
+    outlineLinks.forEach((a, i) => a.classList.toggle('active', i === idx));
+    const a = outlineLinks[idx], box = outlineEl.getBoundingClientRect(), r = a.getBoundingClientRect();
+    if (r.top < box.top || r.bottom > box.bottom) a.scrollIntoView({ block: 'nearest' });
+  }
+  let spyFrame = 0;
+  window.addEventListener('scroll', () => { cancelAnimationFrame(spyFrame); spyFrame = requestAnimationFrame(updateOutlineSpy); }, { passive: true });
+
+  function setOutlineVisible(visible, remember) {
+    document.body.classList.toggle('outline-hidden', !visible);
+    document.getElementById('btn-outline').classList.toggle('on', visible);
+    if (remember) vscode.postMessage({ type: 'setOutlineVisible', visible });
+    updateOutlineSpy();
+  }
+  const outlineVisible = () => !document.body.classList.contains('outline-hidden');
+  document.getElementById('btn-outline').addEventListener('click', () => setOutlineVisible(!outlineVisible(), true));
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'o' && !e.ctrlKey && !e.metaKey && !e.altKey && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+      setOutlineVisible(!outlineVisible(), true);
+    }
+  });
 
   function enhance() {
     const seen = new Map();
@@ -302,6 +362,7 @@
     } else if (msg.type === 'config') {
       document.documentElement.style.setProperty('--font-size', msg.fontSize + 'px');
       document.documentElement.classList.toggle('wide', msg.lineWidth === 'wide');
+      if (typeof msg.outlineVisible === 'boolean') setOutlineVisible(msg.outlineVisible, false);
     } else if (msg.type === 'requestExportHtml') {
       requestExport();
     }

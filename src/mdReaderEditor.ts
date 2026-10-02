@@ -95,6 +95,9 @@ export class MdReaderEditorProvider implements vscode.CustomTextEditorProvider {
           webviewPanel.webview.postMessage({ type: 'config', ...this.config() });
           await postDocument();
           break;
+        case 'setOutlineVisible':
+          await this.context.globalState.update('outlineVisible', !!msg.visible);
+          break;
         case 'toggleTask':
           await this.toggleTask(document, msg.renderedChecked, msg.index, msg.checked);
           break;
@@ -122,7 +125,12 @@ export class MdReaderEditorProvider implements vscode.CustomTextEditorProvider {
 
   private config() {
     const cfg = vscode.workspace.getConfiguration('mdReader');
-    return { fontSize: cfg.get<number>('fontSize', 16), lineWidth: cfg.get<string>('lineWidth', 'normal') };
+    return {
+      fontSize: cfg.get<number>('fontSize', 16),
+      lineWidth: cfg.get<string>('lineWidth', 'normal'),
+      // Remembered across files and sessions (the in-page outline's show/hide toggle).
+      outlineVisible: this.context.globalState.get<boolean>('outlineVisible', true),
+    };
   }
 
   private resourceRoots(docUri: vscode.Uri): vscode.Uri[] {
@@ -283,10 +291,14 @@ export class MdReaderEditorProvider implements vscode.CustomTextEditorProvider {
 </head>
 <body>
 <div id="toolbar">
+  <button id="btn-outline" title="Show / hide the outline (O)">Outline</button>
   <button id="btn-wide" title="Toggle full-width reading">&#8596;</button>
   <button id="btn-export" title="Export as standalone HTML">Export HTML</button>
 </div>
-<div id="page"><article id="doc" class="markdown-body"></article></div>
+<div id="layout">
+  <nav id="outline" aria-label="Outline"></nav>
+  <div id="page"><article id="doc" class="markdown-body"></article></div>
+</div>
 <div id="lightbox"><img alt=""></div>
 <div id="toast"></div>
 ${vendor}

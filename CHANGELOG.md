@@ -3,6 +3,12 @@
 All notable changes to the MD Reader VS Code extension are listed here.
 The format follows [Keep a Changelog](https://keepachangelog.com), and versions follow [Semantic Versioning](https://semver.org).
 
+## [1.1.1] - 2026-10-02
+
+### Fixed
+- The "On This Page" outline from 1.1.0 lived only in the Explorer sidebar, where it was easy to miss and had no visible way to hide or show it. The outline is now also shown **inside the preview itself**, on the left, with an **Outline** button in the toolbar (or press `O`) to hide and show it. It lists the document's headings nested by level, highlights the section you're reading as you scroll, and clicking a heading jumps to it. Your choice is remembered across files and sessions, and the pane hides itself automatically in very narrow windows.
+- The toolbar (Outline, full-width, Export HTML buttons) scrolled out of view with the page instead of staying pinned at the top.
+
 ## [1.1.0] - 2026-10-02
 
 ### Added

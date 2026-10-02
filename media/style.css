@@ -19,7 +19,8 @@
 }
 
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
+html { height: 100%; }
+body { margin: 0; min-height: 100%; } /* not height:100% — that would end a sticky toolbar's range after one screen */
 body {
   background: var(--bg); color: var(--text);
   font-family: var(--vscode-font-family, -apple-system, 'Segoe UI', sans-serif);
@@ -36,6 +37,24 @@ body {
 }
 #toolbar button:hover { background: var(--vscode-toolbar-hoverBackground, var(--quote-bg)); }
 
+#layout { display: flex; align-items: flex-start; }
+#outline {
+  flex: none; width: 240px; position: sticky; top: 41px; align-self: flex-start;
+  max-height: calc(100vh - 41px); overflow-y: auto; padding: 16px 8px 24px 12px;
+  border-right: 1px solid var(--border); font-size: 12.5px;
+}
+body.outline-hidden #outline { display: none; }
+#outline .outline-title { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; margin: 0 0 8px 10px; }
+#outline .outline-empty { color: var(--muted); margin-left: 10px; }
+#outline a {
+  display: block; padding: 3px 8px 3px 10px; border-left: 2px solid transparent; border-radius: 0 4px 4px 0;
+  color: var(--muted); text-decoration: none; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#outline a:hover { color: var(--text); background: var(--quote-bg); }
+#outline a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 500; }
+#toolbar button.on { border-color: var(--accent); color: var(--accent); }
+#layout > #page { flex: 1; min-width: 0; }
+@media (max-width: 700px) { #outline { display: none; } }
 #page { display: flex; justify-content: center; padding: 28px 24px 100px; }
 #doc { width: 100%; max-width: 860px; }
 html.wide #doc { max-width: none; }
