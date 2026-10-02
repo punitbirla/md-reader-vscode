@@ -1,0 +1,150 @@
+{
+  "name": "md-reader-preview",
+  "displayName": "Markdown Preview Reader",
+  "description": "A clean, readable Markdown preview — tables, callouts, Mermaid diagrams, math, syntax highlighting and tickable checkboxes, right inside VS Code.",
+  "version": "1.1.0",
+  "publisher": "punitbirla",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "md",
+    "preview",
+    "mermaid",
+    "katex",
+    "math",
+    "reader",
+    "viewer"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "mdReader.preview",
+        "displayName": "MD Reader",
+        "selector": [
+          { "filenamePattern": "*.md" },
+          { "filenamePattern": "*.markdown" },
+          { "filenamePattern": "*.mdown" },
+          { "filenamePattern": "*.mkd" }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mdReader.openPreview",
+        "title": "MD Reader: Open Preview",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "mdReader.openPreviewToSide",
+        "title": "MD Reader: Open Preview to the Side",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "mdReader.openSource",
+        "title": "MD Reader: View Source",
+        "icon": "$(code)"
+      },
+      {
+        "command": "mdReader.exportHtml",
+        "title": "MD Reader: Export as Standalone HTML..."
+      },
+      {
+        "command": "mdReader.makeDefaultEditor",
+        "title": "MD Reader: Use as Default Editor for Markdown Files"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mdReader.openSource",
+          "when": "activeCustomEditorId == mdReader.preview",
+          "group": "navigation@1"
+        },
+        {
+          "command": "mdReader.openPreviewToSide",
+          "when": "editorLangId == markdown && activeCustomEditorId != mdReader.preview",
+          "group": "navigation@1"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mdReader.openPreviewToSide",
+          "when": "resourceExtname == .md || resourceExtname == .markdown",
+          "group": "navigation"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "mdReader.openPreviewToSide",
+          "when": "resourceExtname == .md || resourceExtname == .markdown"
+        }
+      ],
+      "commandPalette": [
+        { "command": "mdReader.openSource", "when": "activeCustomEditorId == mdReader.preview" },
+        { "command": "mdReader.openPreviewToSide", "when": "editorLangId == markdown" },
+        { "command": "mdReader.exportHtml", "when": "activeCustomEditorId == mdReader.preview || editorLangId == markdown" }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "mdReader.openPreviewToSide",
+        "key": "ctrl+shift+m",
+        "mac": "cmd+shift+m",
+        "when": "editorLangId == markdown"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "mdReaderOutline",
+          "name": "On This Page",
+          "when": "mdReaderPreviewActive",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "MD Reader",
+      "properties": {
+        "mdReader.fontSize": {
+          "type": "number",
+          "default": 16,
+          "description": "Base font size (px) for the rendered Markdown."
+        },
+        "mdReader.lineWidth": {
+          "type": "string",
+          "enum": ["normal", "wide"],
+          "default": "normal",
+          "description": "Reading width of the rendered page."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build && npx @vscode/vsce package"
+  },
+  "dependencies": {
+    "marked": "15.0.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  }
+}
